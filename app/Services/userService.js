@@ -1,7 +1,11 @@
 import UserModel from "../Models/User.js";
 import bcrypt from "bcryptjs";
-import { JsonWebTokenError } from "jsonwebtoken";
+import { json } from "express";
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config();
+
+
 export default class userService {
 
     static async create(data) {
@@ -21,6 +25,7 @@ export default class userService {
     }
 
     static async login(email,password) {
+         const SECRET_KEY = process.env.JWT_SECRET;
         const user = await UserModel.findOne({ email: email});
         console.log(user);
         if (user) {
@@ -28,8 +33,12 @@ export default class userService {
         if (!passwordTrue) {
             return console.log('password is not correct ');
         }
-
-        return user;
+        const jwtTocken = jwt.sign(
+            {email:email , id:user.id },
+            SECRET_KEY ,
+    { expiresIn: "2h" } 
+        )
+        return {user,jwtTocken};
         }
 
         return 0 ;
