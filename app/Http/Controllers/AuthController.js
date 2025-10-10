@@ -1,5 +1,6 @@
 import userService from "../../Services/userService.js";
 import UserService from "../../Services/userService.js";
+import bcrypt from "bcryptjs";
 // const userService = new UserService();
 
 export default class AuthController {
@@ -7,14 +8,14 @@ export default class AuthController {
   static async Register(req, res) {
     try {
       const {email,name,password } = req.body;
-     
-      
+     const passwordHash = bcrypt.hashSync(password);
+      console.log(passwordHash);
       // Simple validation
       if (!email || !name || !password) {
         return res.status(400).json({ error: "Missing required fields" });
       }
 
-      const user = { email, name, password };
+      const user = { email, name, password:passwordHash};
       const newUser = await UserService.create(user);
 
       return res.status(201).json(newUser);
@@ -48,7 +49,11 @@ catch(e){
   static async login(req,res){
       try{
             const user = await userService.login(req.body.email,req.body.password);
-                  return res.json(user);       
+            console.log(user);
+            if(!user){
+                        return res.json('error',405);
+            }
+                      return res.json(user , 202);   
       }
       catch(e){
             console.log('error',e);

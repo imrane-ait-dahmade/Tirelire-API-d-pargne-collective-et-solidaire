@@ -1,33 +1,39 @@
 import UserModel from "../Models/User.js";
+import bcrypt from "bcryptjs";
+import { JsonWebTokenError } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
+export default class userService {
 
-export default class userService{
+    static async create(data) {
 
- static async create(data){
-    const user = new UserModel(data);
-    return await user.save();
+        const user = new UserModel(data);
+        return await user.save();
     }
-    static async all(){
+    static async all() {
         const users = await UserModel.find();
         console.log(users);
         return users;
     }
 
-    static async find(id){
-            const user = await UserModel.findOne(id);
-            return user ;
+    static async find(id) {
+        const user = await UserModel.findOne(id);
+        return user;
     }
 
-    static async login(email,password){
-        const user = await UserModel.findOne({
-            $and:[
-                {email:email},
-                {password:password}
-            ]
-            });
-            if(!user){
-                return console.log('l email or password is not correct')
-            }
+    static async login(email,password) {
+        const user = await UserModel.findOne({ email: email});
+        console.log(user);
+        if (user) {
+             const passwordTrue = bcrypt.compare(password ,user.password);
+        if (!passwordTrue) {
+            return console.log('password is not correct ');
+        }
+
         return user;
+        }
+
+        return 0 ;
+       
     }
 
 }
